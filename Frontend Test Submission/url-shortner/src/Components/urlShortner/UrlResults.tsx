@@ -202,15 +202,6 @@ const UrlResults: React.FC<UrlResultsProps> = ({ urls, onDelete }) => {
                             <CopyIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        {/* <Tooltip title="Test redirect">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleShortUrlClick(url.shortCode)}
-                            color="primary"
-                          >
-                            <LaunchIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip> */}
                       </Box>
                       <Tooltip title="Go to Link">
                         <IconButton
