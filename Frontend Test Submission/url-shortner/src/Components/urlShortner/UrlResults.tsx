@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { ShortenedUrl } from '../../types';
 import { formatExpiryDate, isExpired } from '../../utils/validation';
+import { logInfo, logError, logWarn, logComponentEvent, logUserInteraction } from '../../utils/logging';
 
 interface UrlResultsProps {
   urls: ShortenedUrl[];
@@ -34,21 +35,28 @@ const UrlResults: React.FC<UrlResultsProps> = ({ urls, onDelete }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    logComponentEvent("UrlResults", "mounted", `${urls.length} URLs to display`);
+  }, [urls.length]);
+
   const handleCopy = async (text: string, type: 'short' | 'original') => {
     try {
       await navigator.clipboard.writeText(text);
+      logUserInteraction("copied", `${type} URL`, text);
       setCopiedUrl(`${type}-${text}`);
       setSnackbarOpen(true);
     } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
+      logError("component", `Failed to copy ${type} URL to clipboard: ${err}`);
     }
   };
 
   const handleRedirect = (originalUrl: string) => {
+    logUserInteraction("clicked", "redirect to original URL", originalUrl);
     window.open(originalUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleShortUrlClick = (shortCode: string) => {
+    logUserInteraction("clicked", "short URL for testing", shortCode);
     // Navigate to the short URL route within the same app
     navigate(`/${shortCode}`);
   };

@@ -14,6 +14,7 @@ import {
 import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
 import { UrlFormData, ShortenedUrl } from '../../types';
 import { DEFAULT_VALIDITY_MINUTES } from '../../utils/constants';
+import { logInfo, logError, logWarn, logDebug, logComponentEvent, logUserInteraction, logValidationError } from '../../utils/logging';
 
 interface UrlFormProps {
   onSubmit: (formData: UrlFormData) => Promise<ShortenedUrl>;
@@ -30,36 +31,50 @@ const UrlForm: React.FC<UrlFormProps> = ({ onSubmit, disabled = false, urlCount 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
+  React.useEffect(() => {
+    logComponentEvent("UrlForm", "mounted", `urlCount: ${urlCount}, disabled: ${disabled}`);
+  }, []);
+
   const handleInputChange = (field: keyof UrlFormData) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const newValue = event.target.value;
+    logDebug("component", `UrlForm input change: ${field} = ${newValue}`);
+    
     setFormData(prev => ({
       ...prev,
-      [field]: event.target.value
+      [field]: newValue
     }));
     if (error) setError('');
   };
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     
+    logUserInteraction("submitted", "URL form", `URL: ${formData.originalUrl}`);
+    
     if (!formData.originalUrl.trim()) {
-      setError('Please enter a URL to shorten');
+      const errorMsg = 'Please enter a URL to shorten';
+      logValidationError("originalUrl", formData.originalUrl, "non-empty string");
+      setError(errorMsg);
       return;
     }
 
     setLoading(true);
     setError('');
+    logInfo("component", "UrlForm: Starting URL creation process");
 
     try {
-      await onSubmit(formData);
+      const result = await onSubmit(formData);
+      logInfo("component", `UrlForm: URL created successfully - ${result.shortCode}`);
       setFormData({
         originalUrl: '',
         validityPeriod: '',
         preferredShortCode: ''
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while creating the short URL');
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred while creating the short URL';
+      logError("component", `UrlForm: URL creation failed - ${errorMsg}`);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

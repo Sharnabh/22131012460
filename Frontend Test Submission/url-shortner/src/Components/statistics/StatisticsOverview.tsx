@@ -14,12 +14,17 @@ import {
   Mouse as MouseIcon
 } from '@mui/icons-material';
 import { UrlStatistics } from '../../types';
+import { logComponentEvent } from '../../utils/logging';
 
 interface StatisticsOverviewProps {
   statistics: UrlStatistics;
 }
 
 const StatisticsOverview: React.FC<StatisticsOverviewProps> = ({ statistics }) => {
+  React.useEffect(() => {
+    logComponentEvent("StatisticsOverview", "rendered", `${statistics.totalUrls} URLs, ${statistics.totalClicks} clicks`);
+  }, [statistics]);
+
   const statCards = [
     {
       title: 'Total URLs',

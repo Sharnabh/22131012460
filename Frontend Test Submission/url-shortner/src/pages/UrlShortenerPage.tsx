@@ -5,14 +5,19 @@ import UrlResults from '../Components/urlShortner/UrlResults';
 import { urlShortenerService } from '../services/urlShortenerService';
 import { ShortenedUrl, UrlFormData } from '../types';
 import { MAX_URLS } from '../utils/constants';
+import { logInfo, logError, logWarn, logComponentEvent, logUserInteraction } from '../utils/logging';
 
 const UrlShortenerPage: React.FC = () => {
   const [shortenedUrls, setShortenedUrls] = useState<ShortenedUrl[]>([]);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
+  
   // Clean up expired URLs on component mount and periodically
   useEffect(() => {
+    logComponentEvent("UrlShortenerPage", "mounted");
+    
     const refreshUrls = () => {
+      logInfo("page", "UrlShortenerPage: Refreshing URLs and clearing expired ones");
       urlShortenerService.clearExpiredUrls();
       setShortenedUrls(urlShortenerService.getShortenedUrls());
     };
@@ -20,20 +25,27 @@ const UrlShortenerPage: React.FC = () => {
     refreshUrls();
     const interval = setInterval(refreshUrls, 60000); // Check every minute
 
-    return () => clearInterval(interval);
+    return () => {
+      logComponentEvent("UrlShortenerPage", "unmounted");
+      clearInterval(interval);
+    };
   }, []);
-
   const handleCreateShortUrl = async (formData: UrlFormData): Promise<ShortenedUrl> => {
     if (shortenedUrls.length >= MAX_URLS) {
-      throw new Error(`Maximum of ${MAX_URLS} URLs allowed`);
+      const errorMsg = `Maximum of ${MAX_URLS} URLs allowed`;
+      logWarn("page", `UrlShortenerPage: URL creation blocked - ${errorMsg}`);
+      throw new Error(errorMsg);
     }
 
     try {
+      logInfo("page", "UrlShortenerPage: Creating new short URL");
       const newUrl = await urlShortenerService.createShortUrl(formData);
       // Refresh the URLs from the service (single source of truth)
       setShortenedUrls(urlShortenerService.getShortenedUrls());
       setError('');
       setSuccess('Short URL created successfully! 🎉');
+      
+      logInfo("page", `UrlShortenerPage: Short URL created successfully - ${newUrl.shortCode}`);
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
@@ -41,12 +53,14 @@ const UrlShortenerPage: React.FC = () => {
       return newUrl;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      logError("page", `UrlShortenerPage: URL creation failed - ${errorMessage}`);
       setError(errorMessage);
       throw err;
     }
   };
 
   const handleDeleteUrl = (id: string) => {
+    logUserInteraction("deleted", "URL", id);
     // Remove from service and refresh state
     urlShortenerService.deleteUrl(id);
     setShortenedUrls(urlShortenerService.getShortenedUrls());

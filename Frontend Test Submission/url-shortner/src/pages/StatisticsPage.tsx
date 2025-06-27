@@ -5,6 +5,7 @@ import StatisticsOverview from '../Components/statistics/StatisticsOverview';
 import UrlList from '../Components/statistics/UrlList';
 import { urlShortenerService } from '../services/urlShortenerService';
 import { ShortenedUrl, UrlStatistics } from '../types';
+import { logInfo, logComponentEvent } from '../utils/logging';
 
 const StatisticsPage: React.FC = () => {
   const [urls, setUrls] = useState<ShortenedUrl[]>([]);
@@ -15,14 +16,17 @@ const StatisticsPage: React.FC = () => {
     totalClicks: 0,
     averageClicksPerUrl: 0
   });
-
   useEffect(() => {
+    logComponentEvent("StatisticsPage", "mounted");
+    
     // Load URLs and statistics
     const loadData = () => {
+      logInfo("page", "StatisticsPage: Loading URLs and statistics data");
       const allUrls = urlShortenerService.getShortenedUrls();
       const stats = urlShortenerService.getStatistics();
       setUrls(allUrls);
       setStatistics(stats);
+      logInfo("page", `StatisticsPage: Loaded ${allUrls.length} URLs with ${stats.totalClicks} total clicks`);
     };
 
     loadData();
@@ -30,7 +34,10 @@ const StatisticsPage: React.FC = () => {
     // Refresh data every 30 seconds to catch any new clicks
     const interval = setInterval(loadData, 30000);
     
-    return () => clearInterval(interval);
+    return () => {
+      logComponentEvent("StatisticsPage", "unmounted");
+      clearInterval(interval);
+    };
   }, []);
 
   return (
