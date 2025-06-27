@@ -1,4 +1,36 @@
-# Getting Started with Create React App
+# URL Shortener Application
+
+A modern React-based URL shortener with comprehensive analytics, real-time click tracking, and integrated logging middleware.
+
+## Features
+
+- 🔗 **URL Shortening**: Create short URLs with custom expiry times (1 minute to 1 week)
+- 🎯 **Custom Short Codes**: Optional personalized short codes (3-10 alphanumeric characters)
+- 📊 **Real-time Analytics**: Comprehensive statistics and click tracking
+- 🌍 **Geolocation Tracking**: Track click locations with IP geolocation
+- 📱 **Responsive Design**: Mobile-first design with Material-UI
+- 🔧 **Comprehensive Logging**: Integrated logging middleware with Afformed test server
+- 💾 **Client-side Persistence**: Data stored locally with automatic cleanup
+- ⚡ **Performance Optimized**: Fast loading and responsive interactions
+
+## Architecture
+
+This application demonstrates modern React development practices with:
+- **Layered Architecture**: Clear separation between presentation, business logic, and data layers
+- **TypeScript**: Full type safety throughout the application
+- **Service-Oriented Design**: Business logic abstracted into reusable services
+- **Comprehensive Logging**: Every major operation logged for monitoring and debugging
+- **Material-UI**: Consistent, accessible design system
+
+## Tech Stack
+
+- **React 19.1.0** - Modern component-based UI library
+- **TypeScript 4.9.5** - Type safety and better developer experience
+- **Material-UI 7.1.2** - Comprehensive React component library
+- **React Router 7.6.2** - Client-side routing for single-page application
+- **Custom Logging Middleware** - Integrated logging solution
+
+## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
