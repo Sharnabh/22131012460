@@ -12,6 +12,7 @@ import Layout from './Components/Common/Layout';
 import UrlShortenerPage from './pages/UrlShortenerPage';
 import StatisticsPage from './pages/StatisticsPage';
 import { urlShortenerService } from './services/urlShortenerService';
+import { logInfo, logError, logWarn, logComponentEvent } from './utils/logging';
 
 const theme = createTheme({
   palette: {
@@ -59,23 +60,31 @@ const RedirectHandler: React.FC = () => {
   const [error, setError] = React.useState<string>('');
 
   React.useEffect(() => {
+    logComponentEvent("RedirectHandler", "mounted", `shortCode: ${shortCode}`);
+    
     if (!shortCode) {
-      setError('Invalid short code');
+      const errorMsg = 'Invalid short code';
+      logError("component", `RedirectHandler: ${errorMsg}`);
+      setError(errorMsg);
       setRedirecting(false);
       return;
     }
 
     const originalUrl = urlShortenerService.getOriginalUrl(shortCode);
     if (originalUrl) {
+      logInfo("component", `RedirectHandler: Redirecting ${shortCode} -> ${originalUrl}`);
       // Add a small delay to show the redirecting message
       setTimeout(() => {
         window.location.href = originalUrl;
       }, 1000);
     } else {
-      setError('URL not found or expired');
+      const errorMsg = 'URL not found or expired';
+      logWarn("component", `RedirectHandler: ${errorMsg} for shortCode: ${shortCode}`);
+      setError(errorMsg);
       setRedirecting(false);
       // Redirect to main page after showing error
       setTimeout(() => {
+        logInfo("component", "RedirectHandler: Redirecting to home page after error");
         window.location.href = '/';
       }, 3000);
     }
@@ -123,6 +132,10 @@ const RedirectHandler: React.FC = () => {
 };
 
 function App() {
+  React.useEffect(() => {
+    logInfo("component", "App component mounted - URL Shortener application started");
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -2,9 +2,14 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Link, BarChart } from '@mui/icons-material';
+import { logUserInteraction } from '../../utils/logging';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
+
+  const handleNavigation = (page: string) => {
+    logUserInteraction("navigated", "page", page);
+  };
 
   return (
     <AppBar position="static" elevation={2}>
@@ -20,6 +25,7 @@ const Navigation: React.FC = () => {
             color="inherit"
             startIcon={<Link />}
             variant={location.pathname === '/' ? 'outlined' : 'text'}
+            onClick={() => handleNavigation('URL Shortener')}
             sx={{ 
               color: 'white',
               borderColor: location.pathname === '/' ? 'white' : 'transparent',
@@ -37,6 +43,7 @@ const Navigation: React.FC = () => {
             color="inherit"
             startIcon={<BarChart />}
             variant={location.pathname === '/statistics' ? 'outlined' : 'text'}
+            onClick={() => handleNavigation('Statistics')}
             sx={{ 
               color: 'white',
               borderColor: location.pathname === '/statistics' ? 'white' : 'transparent',

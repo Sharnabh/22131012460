@@ -12,6 +12,7 @@ import {
 import { ShortenedUrl } from '../../types';
 import UrlDetailCard from './UrlDetailCard';
 import { isExpired } from '../../utils/validation';
+import { logComponentEvent, logUserInteraction } from '../../utils/logging';
 
 interface UrlListProps {
   urls: ShortenedUrl[];
@@ -24,6 +25,24 @@ const UrlList: React.FC<UrlListProps> = ({ urls }) => {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  React.useEffect(() => {
+    logComponentEvent("UrlList", "mounted", `${urls.length} URLs to display`);
+  }, [urls.length]);
+
+  React.useEffect(() => {
+    if (searchTerm) {
+      logUserInteraction("searched", "URL list", `term: ${searchTerm}`);
+    }
+  }, [searchTerm]);
+
+  React.useEffect(() => {
+    logUserInteraction("changed", "sort option", sortBy);
+  }, [sortBy]);
+
+  React.useEffect(() => {
+    logUserInteraction("changed", "filter option", filterBy);
+  }, [filterBy]);
 
   // Filter URLs
   const filteredUrls = urls.filter(url => {
